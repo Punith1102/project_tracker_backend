@@ -8,8 +8,6 @@ import java.util.Optional;
 
 @Repository
 public interface UserProjectRepository extends JpaRepository<UserProjectEntity, Integer> {
-
-    List<UserProjectEntity> findByUserUserId(Integer userId);
     List<UserProjectEntity> findByProjectProjectId(Integer projectId);
     Optional<UserProjectEntity> findByUserUserIdAndProjectProjectId(Integer userId, Integer projectId);
 }

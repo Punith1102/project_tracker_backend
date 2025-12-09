@@ -34,31 +34,24 @@ public class JwtAuthFilter extends OncePerRequestFilter {
             throws ServletException, IOException {
 
         try {
-            // 1. Get the Authorization Header from the request
             String authHeader = request.getHeader("Authorization");
             String token = null;
             String username = null;
 
-            // 2. Check if the header starts with "Bearer "
             if (authHeader != null && authHeader.startsWith("Bearer ")) {
-                token = authHeader.substring(7); // Remove "Bearer " prefix
+                token = authHeader.substring(7);
 
-                // 3. SAFE CHECK: Try to extract username.
-                // We wrap this in a try-catch so if the token is garbage, we don't crash.
                 try {
                     username = jwtUtils.getUserNameFromJwtToken(token);
                 } catch (Exception e) {
-                    // Just log it and continue. The request will proceed as "Unauthenticated".
                     logger.warn("Invalid JWT Token in header: " + e.getMessage());
                 }
             }
 
-            // 4. If we found a username and the user is not already authenticated
             if (username != null && SecurityContextHolder.getContext().getAuthentication() == null) {
 
                 UserDetails userDetails = userDetailsService.loadUserByUsername(username);
 
-                // 5. Validate the token
                 if (jwtUtils.validateJwtToken(token)) {
 
                     UsernamePasswordAuthenticationToken authToken = new UsernamePasswordAuthenticationToken(
@@ -66,16 +59,13 @@ public class JwtAuthFilter extends OncePerRequestFilter {
 
                     authToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
 
-                    // 6. Set the authentication in the Security Context
                     SecurityContextHolder.getContext().setAuthentication(authToken);
                 }
             }
         } catch (Exception e) {
-            // Catch any other unexpected errors to prevent 500/403 crashes
             logger.error("Cannot set user authentication: {}", e.getMessage());
         }
 
-        // 7. Continue the filter chain
         filterChain.doFilter(request, response);
     }
 }

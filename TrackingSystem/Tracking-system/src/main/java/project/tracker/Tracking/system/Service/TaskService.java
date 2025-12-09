@@ -24,14 +24,11 @@ public class TaskService {
     @Autowired private UserRepository userRepository;
     @Autowired private TaskStatusRepository taskStatusRepository;
 
-    // --- FIX FOR COMPILER ERROR ---
-    // Explicit Suppliers to avoid "unnamed classes" preview feature error
     private final Supplier<RuntimeException> taskNotFound = () -> new RuntimeException("Task not found");
     private final Supplier<RuntimeException> userNotFound = () -> new RuntimeException("User not found");
     private final Supplier<RuntimeException> projectNotFound = () -> new RuntimeException("Project not found");
 
 
-    // 1. Create a Task
     public TaskEntity createTask(Integer projectId, TaskEntity task, String email) {
         ProjectEntity project = projectRepository.findById(projectId)
                 .orElseThrow(projectNotFound);
@@ -39,7 +36,6 @@ public class TaskService {
         UserEntity creator = userRepository.findByEmail(email)
                 .orElseThrow(userNotFound);
 
-        // Set default status if none provided (Assuming ID 1 is "TO_DO")
         if (task.getStatus() == null) {
             TaskStatusEntity defaultStatus = taskStatusRepository.findById(1)
                     .orElseThrow(() -> new RuntimeException("Default status (ID 1) not found. Seed task_status table."));
@@ -49,27 +45,24 @@ public class TaskService {
         task.setProject(project);
         task.setCreatedBy(creator);
 
-        // DEBUG LOGS
         System.out.println("DEBUG: Creating task. AssignedTo: " + task.getAssignedTo());
         if (task.getAssignedTo() != null) {
             System.out.println("DEBUG: AssignedTo UserID: " + task.getAssignedTo().getUserId());
         }
 
-        // If assignedTo is set, verify the user exists
         if (task.getAssignedTo() != null && task.getAssignedTo().getUserId() != null) {
             UserEntity assignee = userRepository.findById(task.getAssignedTo().getUserId())
                     .orElseThrow(() -> new RuntimeException("Assignee user not found."));
             task.setAssignedTo(assignee);
             System.out.println("DEBUG: Assigned user found and set: " + assignee.getEmail());
         } else {
-            task.setAssignedTo(null); // Ensure null if not explicitly assigned
+            task.setAssignedTo(null);
             System.out.println("DEBUG: AssignedTo is null or invalid. Task will be unassigned.");
         }
 
         return taskRepository.save(task);
     }
 
-    // 2. Get Tasks Assigned to Logged-in User
     public List<TaskEntity> getTasksAssignedToUser(String email) {
         UserEntity user = userRepository.findByEmail(email)
                 .orElseThrow(userNotFound);
@@ -77,7 +70,6 @@ public class TaskService {
         return taskRepository.findByAssignedToUserId(user.getUserId());
     }
 
-    // 3. Update Task Status
     public TaskEntity updateTaskStatus(Integer taskId, Integer statusId) {
         TaskEntity task = taskRepository.findById(taskId)
                 .orElseThrow(taskNotFound);
@@ -89,7 +81,6 @@ public class TaskService {
         return taskRepository.save(task);
     }
 
-    // 4. Update Task Details (Title, Description, Assignee)
     public TaskEntity updateTaskDetails(Integer taskId, TaskEntity taskUpdates) {
         TaskEntity task = taskRepository.findById(taskId)
                 .orElseThrow(taskNotFound);
@@ -112,18 +103,15 @@ public class TaskService {
         return taskRepository.save(task);
     }
 
-    // 5. Admin Feature: Unassign User From Task
     public TaskEntity unassignUserFromTask(Integer taskId) {
         TaskEntity task = taskRepository.findById(taskId)
                 .orElseThrow(taskNotFound);
 
-        // Get current logged-in user's details
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         String currentUserName = authentication.getName();
         UserEntity currentUser = userRepository.findByEmail(currentUserName)
                 .orElseThrow(userNotFound);
 
-        // PERMISSION CHECK: Only Admin is allowed to force unassign
         if (!"ADMIN".equalsIgnoreCase(currentUser.getRole())) {
             throw new RuntimeException("Access Denied: Only Admin can unassign users from tasks.");
         }
@@ -132,18 +120,15 @@ public class TaskService {
         return taskRepository.save(task);
     }
 
-    // 6. Admin/Creator Delete Task
     public void deleteTask(Integer taskId) {
         TaskEntity task = taskRepository.findById(taskId)
                 .orElseThrow(taskNotFound);
 
-        // Get current logged-in user's details
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         String currentUserName = authentication.getName();
         UserEntity currentUser = userRepository.findByEmail(currentUserName)
                 .orElseThrow(userNotFound);
 
-        // CHECK PERMISSION: Only Admin OR the original creator can delete
         boolean isAdmin = "ADMIN".equalsIgnoreCase(currentUser.getRole());
         boolean isCreator = task.getCreatedBy().getUserId().equals(currentUser.getUserId());
 

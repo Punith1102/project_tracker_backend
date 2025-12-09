@@ -32,19 +32,15 @@ public class AuthService {
 
 
     public String registerUser(SignupRequest request) {
-        // Validation: Check if email exists
         if (userRepository.existsByEmail(request.getEmail())) {
             throw new RuntimeException("Error: Email is already in use!");
         }
-
 
         UserEntity user = new UserEntity();
         user.setName(request.getName());
         user.setEmail(request.getEmail());
 
-
         user.setPassword(passwordEncoder.encode(request.getPassword()));
-
 
         user.setRole("USER");
 
@@ -52,9 +48,7 @@ public class AuthService {
         return "User registered successfully!";
     }
 
-
     public AuthResponse loginUser(LoginRequest request) {
-
 
         Authentication authentication = authenticationManager.authenticate(
                 new UsernamePasswordAuthenticationToken(
@@ -63,13 +57,10 @@ public class AuthService {
                 )
         );
 
-
         SecurityContextHolder.getContext().setAuthentication(authentication);
-
 
         String jwt = jwtUtils.generateJwtToken(authentication);
 
-        // Fetch user details to include in response
         UserEntity userDetails = userRepository.findByEmail(request.getEmail())
                 .orElseThrow(() -> new RuntimeException("Error: User not found."));
 
