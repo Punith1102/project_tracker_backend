@@ -120,6 +120,7 @@ public class TaskService {
         return taskRepository.save(task);
     }
 
+    @org.springframework.transaction.annotation.Transactional
     public void deleteTask(Integer taskId) {
         TaskEntity task = taskRepository.findById(taskId)
                 .orElseThrow(taskNotFound);
@@ -131,11 +132,15 @@ public class TaskService {
 
         boolean isAdmin = "ADMIN".equalsIgnoreCase(currentUser.getRole());
         boolean isCreator = task.getCreatedBy().getUserId().equals(currentUser.getUserId());
+        boolean isProjectCreator = task.getProject().getCreatedBy().getUserId().equals(currentUser.getUserId());
+        boolean isAssignee = task.getAssignedTo() != null && task.getAssignedTo().getUserId().equals(currentUser.getUserId());
 
-        if (isAdmin || isCreator) {
-            taskRepository.deleteById(taskId);
+        if (isAdmin || isCreator || isProjectCreator || isAssignee) {
+            // Remove task from project to trigger orphan removal if configured, or just to keep object graph consistent
+            task.getProject().getTasks().remove(task);
+            taskRepository.delete(task); // Use delete(entity) instead of deleteById
         } else {
-            throw new RuntimeException("Access Denied: Only the Admin or the Task Creator can delete this task.");
+            throw new RuntimeException("Access Denied: Only Admin, Project Creator, Task Creator, or Assignee can delete this task.");
         }
     }
 }
