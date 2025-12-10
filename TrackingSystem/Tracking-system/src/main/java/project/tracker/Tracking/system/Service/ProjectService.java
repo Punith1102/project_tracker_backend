@@ -28,11 +28,9 @@ public class ProjectService {
                 .orElseThrow(() -> new RuntimeException("User not found"));
 
         if ("ADMIN".equals(user.getRole())) {
-            System.out.println("DEBUG: User is ADMIN, returning all projects");
             return projectRepository.findAll();
         }
 
-        System.out.println("DEBUG: User is regular USER, returning their projects");
         return projectRepository.findProjectsForUser(user.getUserId());
     }
 

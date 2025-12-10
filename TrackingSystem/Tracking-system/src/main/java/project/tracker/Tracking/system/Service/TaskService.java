@@ -45,19 +45,12 @@ public class TaskService {
         task.setProject(project);
         task.setCreatedBy(creator);
 
-        System.out.println("DEBUG: Creating task. AssignedTo: " + task.getAssignedTo());
-        if (task.getAssignedTo() != null) {
-            System.out.println("DEBUG: AssignedTo UserID: " + task.getAssignedTo().getUserId());
-        }
-
         if (task.getAssignedTo() != null && task.getAssignedTo().getUserId() != null) {
             UserEntity assignee = userRepository.findById(task.getAssignedTo().getUserId())
                     .orElseThrow(() -> new RuntimeException("Assignee user not found."));
             task.setAssignedTo(assignee);
-            System.out.println("DEBUG: Assigned user found and set: " + assignee.getEmail());
         } else {
             task.setAssignedTo(null);
-            System.out.println("DEBUG: AssignedTo is null or invalid. Task will be unassigned.");
         }
 
         return taskRepository.save(task);
@@ -136,9 +129,8 @@ public class TaskService {
         boolean isAssignee = task.getAssignedTo() != null && task.getAssignedTo().getUserId().equals(currentUser.getUserId());
 
         if (isAdmin || isCreator || isProjectCreator || isAssignee) {
-            // Remove task from project to trigger orphan removal if configured, or just to keep object graph consistent
             task.getProject().getTasks().remove(task);
-            taskRepository.delete(task); // Use delete(entity) instead of deleteById
+            taskRepository.delete(task);
         } else {
             throw new RuntimeException("Access Denied: Only Admin, Project Creator, Task Creator, or Assignee can delete this task.");
         }

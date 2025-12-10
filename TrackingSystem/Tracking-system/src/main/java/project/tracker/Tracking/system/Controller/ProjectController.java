@@ -52,15 +52,11 @@ public class ProjectController {
             @RequestBody TaskEntity task,
             Principal principal) {
 
-        System.out.println("DEBUG: createTask called for projectId: " + projectId);
-        System.out.println("DEBUG: Principal: " + principal);
         if (principal == null) {
-            System.out.println("ERROR: Principal is NULL! User not authenticated.");
             return ResponseEntity.status(403).build();
         }
         
         String email = principal.getName();
-        System.out.println("DEBUG: User email from Principal: " + email);
         return ResponseEntity.ok(taskService.createTask(projectId, task, email));
     }
 

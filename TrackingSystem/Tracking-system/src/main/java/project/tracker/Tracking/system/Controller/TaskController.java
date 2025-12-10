@@ -6,7 +6,7 @@ import org.springframework.web.bind.annotation.*;
 import project.tracker.Tracking.system.Entity.TaskEntity;
 import project.tracker.Tracking.system.Service.TaskService;
 
-import java.util.List; // <--- Added this missing import
+import java.util.List;
 import java.util.Map;
 import java.security.Principal;
 
@@ -46,8 +46,8 @@ public class TaskController {
     }
 
     @DeleteMapping("/{taskId}")
-    public ResponseEntity<?> deleteTask(@PathVariable Integer taskId) {
+    public ResponseEntity<Void> deleteTask(@PathVariable Integer taskId) {
         taskService.deleteTask(taskId);
-        return ResponseEntity.ok("Task deleted successfully");
+        return ResponseEntity.noContent().build();
     }
 }

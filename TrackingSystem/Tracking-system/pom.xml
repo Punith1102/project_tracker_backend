@@ -5,8 +5,8 @@
     <parent>
         <groupId>org.springframework.boot</groupId>
         <artifactId>spring-boot-starter-parent</artifactId>
-        <version>3.3.0</version> <!-- CORRECTED: Changed from 4.0.0 to 3.3.0 -->
-        <relativePath/> <!-- lookup parent from repository -->
+        <version>3.3.0</version>
+        <relativePath/>
     </parent>
     <groupId>project.tracker</groupId>
     <artifactId>Tracking-system</artifactId>
@@ -30,7 +30,6 @@
         <java.version>17</java.version>
     </properties>
     <dependencies>
-        <!-- 1. Database Connectivity -->
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-data-jpa</artifactId>
@@ -42,21 +41,16 @@
             <version>2.2.0</version>
         </dependency>
 
-        <!-- 2. Security (Login/Auth) -->
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-security</artifactId>
         </dependency>
 
-        <!-- 3. Web Starter (REST APIs & Tomcat) -->
-        <!-- CORRECTED: Changed 'webmvc' to 'web' -->
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-web</artifactId>
         </dependency>
 
-        <!-- 4. JWT Dependencies (CRITICAL for JwtUtils.java) -->
-        <!-- ADDED these 3 dependencies -->
         <dependency>
             <groupId>io.jsonwebtoken</groupId>
             <artifactId>jjwt-api</artifactId>
@@ -75,7 +69,6 @@
             <scope>runtime</scope>
         </dependency>
 
-        <!-- 5. Developer Tools -->
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-devtools</artifactId>
@@ -93,7 +86,6 @@
             <optional>true</optional>
         </dependency>
 
-        <!-- 6. Testing -->
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-test</artifactId>
