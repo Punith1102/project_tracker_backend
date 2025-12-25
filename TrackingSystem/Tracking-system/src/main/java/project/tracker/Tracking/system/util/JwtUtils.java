@@ -16,6 +16,10 @@ public class JwtUtils {
 
     private static final int jwtExpirationMs = 900000;
 
+    public long getJwtExpirationMs() {
+        return jwtExpirationMs;
+    }
+
     private Key getSigningKey() {
         return Keys.hmacShaKeyFor(jwtSecret.getBytes());
     }
